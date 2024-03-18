@@ -7,27 +7,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
-
-
-
-
     //these are the attributes for _speed
    [SerializeField] //this allows a private variable to still be accessed and changed inside of unity
-   [TooltipAttribute("Player Max Speed")] //this gives an explanation of what this is when you hover over it in the unity inspector
+   [Min(0)] //this makes minimum speed 0
+   [TooltipAttribute("Player Speed")] //this gives an explanation of what this is when you hover over it in the unity inspector
+   private float _speed = 25; //= 25 will make it a default value in the inspector
    private float _maxSpeed;
-   [SerializeField]
    private float _acceleration;
-    [SerializeField]
-    private float _jumpHeight;
-    [Space]
-    [SerializeField]
-    private Vector3 _groundCheck;
-    [SerializeField]
-    private float _groundCheckRadius;
-
-
    private Vector3 _moveDirection;
-    
+
+    [SerializeField, Tooltip("How much vertical force is applied when jumping")] //you can declare attributes like this or like above either is correct
+    private float _jumpForce = 25;
 
     private Rigidbody _rigidbody;
 
@@ -35,12 +25,11 @@ public class PlayerController : MonoBehaviour
     /// checks to see if the player is on the ground and can jump or not.
     /// </summary>
     private bool _isGrounded = false;
-    private bool _jumpInput = false;
 
-    public float MaxSpeed
+    public float Speed
     {
-        get => _maxSpeed;                      //this is the same as get = {return _speed} apparently is called syntatic sugar and something to called lamda syntax?
-        set =>_maxSpeed = Mathf.Max(0, value); //Mathf.Max insures this value can never be set to a nagative value.
+        get => _speed;                      //this is the same as get = {return _speed} apparently is called syntatic sugar and something to called lamda syntax?
+        set =>_speed = Mathf.Max(0, value); //Mathf.Max insures this value can never be set to a nagative value.
     }
 
 
@@ -76,50 +65,25 @@ public class PlayerController : MonoBehaviour
        // }
         //_rigidbody.AddForce(Vector3.right * moveInput * _speed * Time.deltaTime);
        // _rigidbody.AddForce(Vector3.up * jumpInput * _jumpForce * Time.deltaTime, ForceMode.Impulse);
-
-        //Get Movement Input
        _moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0);
-        _jumpInput = Input.GetAxisRaw("Jump") != 0;
         
 
     }
 
-    //private void OnTriggerEnter(Collider other)
-   // {
-  //      _isGrounded = true;
-  //  }
-   
+    private void OnTriggerEnter(Collider other)
+    {
+        _isGrounded = true;
+    }
 
 
     private void FixedUpdate() //this is something all monobehaviours have it. Runs your physics independent of your frame right.
-    {   //ground check
-        _isGrounded = Physics.OverlapSphere(transform.position + _groundCheck, _groundCheckRadius).Length > 1;
-
+    {
         //add movement force
         _rigidbody.AddForce(_moveDirection * _acceleration * Time.fixedDeltaTime, ForceMode.VelocityChange);
 
 
-            //Clamp velocity to _maxSpeed
-            Vector3 velocity = _rigidbody.velocity;
-            float newXSpeed = Mathf.Clamp(_rigidbody.velocity.x, - _maxSpeed, _maxSpeed);
-            velocity.x = newXSpeed;
-            _rigidbody.velocity = velocity;
-  
-
-        if (_jumpInput && _isGrounded)
-        {
-            //Calculate force needed to reach _jumpHeight
-            float force = Mathf.Sqrt(_jumpHeight * -2f * Physics.gravity.y);
-            _rigidbody.AddForce(Vector3.up * force, ForceMode.Impulse);
-        }
+        if (_rigidbody.velocity.magnitude > _maxSpeed)
+            _rigidbody.velocity = _rigidbody.velocity.normalized * _maxSpeed;
+       
     }
-
-
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position + _groundCheck, _groundCheckRadius);
-    }
-#endif
 }
