@@ -1,0 +1,3 @@
+Hello and Welcome to JumpyRatKing (aka Tag)
+
+There are 2 players in the game player one who is green and on the left side of the map and player 2 who is red on and on the right side of the map. To start player 2 will be it. The player who is hit will be identified by whichever player has a trail following them. To move in the game player one uses A and D to move and W to jump. Player 2 uses the Left and right arrows to move and the Up arrow to jump. Whenever a player tags the other it will be indicated by an explosion of the It players color. I hope you enjoy.
